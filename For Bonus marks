@@ -1,0 +1,73 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+// Define a struct to represent a route
+struct Route {
+    string source;
+    string destination;
+    int price;
+};
+
+// Define a vector to store all routes
+vector<Route> routes;
+
+// Function to find all journeys connecting two stops, including direct, single-transfer, and two-transfer journeys
+vector<Route> findJourneys(string source, string destination) {
+    vector<Route> journeys;
+
+    // Find direct journeys
+    vector<Route> directJourneys = findDirectJourneys(source, destination);
+    journeys.insert(journeys.end(), directJourneys.begin(), directJourneys.end());
+
+    // Find journeys with one transfer
+    vector<Route> indirectJourneys = findIndirectJourneys(source, destination);
+    journeys.insert(journeys.end(), indirectJourneys.begin(), indirectJourneys.end());
+
+    // Find journeys with two transfers
+    for (Route route1 : routes) {
+        for (Route route2 : routes) {
+            for (Route route3 : routes) {
+                if (route1.source == source && route1.destination == route2.source &&
+                    route2.destination == route3.source && route3.destination == destination) {
+                    journeys.push_back(route1);
+                    journeys.push_back(route2);
+                    journeys.push_back(route3);
+                }
+            }
+        }
+    }
+
+    return journeys;
+}
+
+int main() {
+    // Add some routes to the vector
+    routes.push_back(Route{"S0", "S1", 10});
+    routes.push_back(Route{"S1", "S2", 20});
+    routes.push_back(Route{"S2", "Sd", 30});
+    routes.push_back(Route{"S0", "S5", 40});
+    routes.push_back(Route{"S5", "S6", 50});
+    routes.push_back(Route{"S6", "Sd", 60});
+    routes.push_back(Route{"S0", "Sd", 70});
+
+    // Find all journeys connecting S0 and Sd
+    vector<Route> journeys = findJourneys("S0", "Sd");
+
+    // Print all journeys
+    cout << "All journeys:" << endl;
+    for (int i = 0; i < journeys.size(); i += 2) {
+        cout << journeys[i].source << " -> ";
+        for (int j = i + 1; j < i + 2; j++) {
+            cout << journeys[j].destination << " -> ";
+        }
+        cout << ": $" << journeys[i].price;
+        for (int j = i + 1; j < i + 2; j++) {
+            cout << " + $" << journeys[j].price;
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
